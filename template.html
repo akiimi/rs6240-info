@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<meta name="description" content="{{SUBTITLE}}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   CUSTOMISE HERE: colours, fonts and sizes. Light theme first, dark below.
+   ===================================================================== */
+:root {
+  color-scheme: light;
+  --bg: #F3F6F5;          /* page background */
+  --surface: #FFFFFF;     /* cards, code, tables */
+  --surface-2: #E9EEEC;   /* table headers, sidebar hover */
+  --ink: #17201E;         /* main text */
+  --muted: #5A6663;       /* secondary text */
+  --rule: #D3DBD8;        /* borders */
+  --accent: #1D6B57;      /* links, active section */
+  --accent-soft: #DCEDE7;
+  --warn: #9A5B00;
+  --warn-soft: #FBF0DC;
+  --mark: #FFE58A;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --base-size: 17px;
+  --measure: 46rem;       /* max text column width */
+  --sidebar: 17.5rem;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111716; --surface: #182120; --surface-2: #1F2A28; --ink: #DCE5E2;
+    --muted: #93A29E; --rule: #2C3936; --accent: #6CC9A8; --accent-soft: #1C3530;
+    --warn: #E8B15A; --warn-soft: #2E2516; --mark: #6B5A12;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111716; --surface: #182120; --surface-2: #1F2A28; --ink: #DCE5E2;
+  --muted: #93A29E; --rule: #2C3936; --accent: #6CC9A8; --accent-soft: #1C3530;
+  --warn: #E8B15A; --warn-soft: #2E2516; --mark: #6B5A12;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 1rem); font-size: var(--base-size); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--accent); text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+/* ---------- layout ---------- */
+.layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  border-right: 1px solid var(--rule); padding: 1.25rem 1rem 2rem;
+  background: var(--bg);
+}
+main { padding: 0 clamp(1rem, 4vw, 3.5rem) 5rem; min-width: 0; }
+.content { max-width: 62rem; }
+.content > h2, .content > h3 { max-width: var(--measure); }
+
+/* ---------- sidebar ---------- */
+.brand { font-weight: 600; font-size: 0.95rem; line-height: 1.3; margin: 0 0 1rem; color: var(--ink); text-decoration: none; display: block; }
+.search { position: relative; margin-bottom: 0.5rem; }
+.search input {
+  width: 100%; font: inherit; font-size: 0.85rem; padding: 0.45rem 0.6rem;
+  border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink);
+}
+.search-status { font-size: 0.75rem; color: var(--muted); min-height: 1.1rem; margin-bottom: 0.75rem; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc > ul > li { margin: 0.1rem 0; }
+.toc a {
+  display: block; text-decoration: none; color: var(--muted); font-size: 0.86rem;
+  padding: 0.28rem 0.55rem; border-radius: 5px; border-left: 2px solid transparent;
+}
+.toc a:hover { background: var(--surface-2); color: var(--ink); }
+.toc > ul > li > a { color: var(--ink); font-weight: 500; }
+.toc ul ul a { padding-left: 1.3rem; font-size: 0.8rem; }
+.toc a.active { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); }
+.toc ul ul { display: none; }
+.toc li.open > ul { display: block; }
+.controls { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--rule); }
+.controls button {
+  font: inherit; font-size: 0.78rem; padding: 0.3rem 0.55rem; border-radius: 5px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.controls button:hover { border-color: var(--accent); }
+.progress { height: 3px; background: var(--rule); border-radius: 2px; margin: 0 0 1rem; overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0; background: var(--accent); }
+
+/* ---------- header ---------- */
+.hero {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2rem; align-items: center;
+  padding: 3rem 0 2rem; border-bottom: 1px solid var(--rule); margin-bottom: 1rem; max-width: 62rem;
+}
+.hero h1 { font-size: clamp(1.9rem, 3.6vw, 2.7rem); line-height: 1.12; letter-spacing: -0.015em; margin: 0 0 0.75rem; font-weight: 700; }
+.hero p { margin: 0; color: var(--muted); max-width: 40rem; font-size: 1.05rem; }
+.hero dl { display: flex; flex-wrap: wrap; gap: 0.4rem 1.6rem; margin: 1.25rem 0 0; font-size: 0.85rem; }
+.hero dt { color: var(--muted); }
+.hero dd { margin: 0; font-weight: 500; }
+.hero dl div { display: flex; gap: 0.4rem; }
+.scope { width: 168px; height: 168px; color: var(--accent); }
+.scope .ring { fill: none; stroke: currentColor; stroke-opacity: 0.28; }
+.scope .axis { stroke: currentColor; stroke-opacity: 0.18; }
+.scope .sweep { fill: currentColor; fill-opacity: 0.14; }
+.scope .blip { fill: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  .scope .sweep-g { transform-origin: 100px 100px; animation: sweep 9s linear 1 both; }
+  @keyframes sweep { from { transform: rotate(-120deg); } to { transform: rotate(0deg); } }
+}
+
+/* ---------- content typography ---------- */
+.content h2 {
+  font-size: 1.55rem; line-height: 1.25; margin: 3.5rem 0 1rem; padding-top: 0.5rem;
+  letter-spacing: -0.01em; font-weight: 650;
+}
+.content h3 { font-size: 1.12rem; margin: 2.2rem 0 0.6rem; font-weight: 600; }
+.content h2 .anchor, .content h3 .anchor {
+  margin-left: 0.4rem; text-decoration: none; color: var(--muted); opacity: 0; font-weight: 400;
+}
+.content h2:hover .anchor, .content h3:hover .anchor, .anchor:focus { opacity: 1; }
+.content p, .content li { max-width: var(--measure); }
+.content ul, .content ol { padding-left: 1.4rem; }
+.content li { margin: 0.35rem 0; }
+.content li > ol, .content li > ul { margin-top: 0.35rem; }
+code {
+  font-family: var(--font-mono); font-size: 0.86em; background: var(--surface-2);
+  padding: 0.08em 0.32em; border-radius: 4px; overflow-wrap: anywhere;
+}
+.codeblock { position: relative; margin: 1rem 0 1.4rem; }
+.codeblock pre, .content pre {
+  margin: 0; overflow-x: auto; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 0.95rem 1.1rem; font-size: 0.84rem; line-height: 1.55;
+}
+.codeblock pre code, .content pre code { background: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.copy {
+  position: absolute; top: 0.45rem; right: 0.45rem; font: inherit; font-size: 0.74rem;
+  padding: 0.2rem 0.5rem; border-radius: 5px; border: 1px solid var(--rule);
+  background: var(--bg); color: var(--muted); cursor: pointer;
+}
+.copy:hover { color: var(--ink); border-color: var(--accent); }
+.table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.86rem; line-height: 1.45; }
+th, td { text-align: left; vertical-align: top; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--rule); }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td code { white-space: nowrap; }
+.formula {
+  font-family: var(--font-mono); font-size: 1rem; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; overflow-x: auto;
+}
+.admonition {
+  border: 1px solid var(--warn); background: var(--warn-soft); border-radius: 8px;
+  padding: 0.8rem 1rem; margin: 1.2rem 0; max-width: var(--measure);
+}
+.admonition-title { font-weight: 600; color: var(--warn); margin: 0 0 0.25rem; }
+.admonition p:last-child { margin-bottom: 0; }
+mark { background: var(--mark); color: inherit; border-radius: 2px; padding: 0 1px; }
+mark.current { outline: 2px solid var(--accent); }
+.task-list { list-style: none; padding-left: 0.2rem; }
+.task-list li { display: flex; gap: 0.6rem; align-items: flex-start; }
+.task-list input { margin-top: 0.35rem; width: 1.05rem; height: 1.05rem; accent-color: var(--accent); flex: none; }
+.task-list li.done > span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rule); }
+footer { margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.82rem; max-width: var(--measure); }
+.back-top { position: fixed; top: auto; right: 1rem; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); display: none; z-index: 5; padding: 0.4rem 0.8rem; }
+
+/* ---------- mobile ---------- */
+.menu-btn { display: none; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; width: min(85vw, 20rem); z-index: 20;
+    transform: translateX(-100%); transition: transform 0.2s ease; box-shadow: 0 0 0 100vmax transparent;
+    padding-top: calc(1.25rem + env(safe-area-inset-top, 0px));
+  }
+  body.nav-open .sidebar { transform: none; box-shadow: 0 0 0 100vmax rgba(0,0,0,0.35); }
+  .menu-btn {
+    display: inline-flex; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    margin: 0.6rem 0 0; font: inherit; font-size: 0.85rem; padding: 0.4rem 0.75rem; border-radius: 6px;
+    border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  }
+  .hero { grid-template-columns: 1fr; padding-top: 1.5rem; }
+  .scope { display: none; }
+  body.scrolled .back-top { display: inline-flex; }
+}
+@media print {
+  .sidebar, .menu-btn, .copy, .controls, .back-top { display: none !important; }
+  .layout { display: block; }
+  body { background: #fff; color: #000; }
+  .content h2 { break-before: page; }
+  .table-wrap { overflow: visible; }
+}
+{{PYGMENTS_CSS}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" aria-label="Contents">
+    <a class="brand" href="#top">{{SHORT_TITLE}}</a>
+    <div class="progress" aria-hidden="true"><span id="progress"></span></div>
+    <div class="search">
+      <label for="q" class="visually-hidden" style="position:absolute;left:-9999px">Search this guide</label>
+      <input id="q" type="search" placeholder="Search, e.g. cfar or micro" autocomplete="off">
+    </div>
+    <div class="search-status" id="search-status" aria-live="polite"></div>
+    <nav class="toc" id="toc">{{TOC}}</nav>
+    <div class="controls">
+      <button type="button" id="theme-btn" title="Switch light / dark">Theme: auto</button>
+      <button type="button" id="smaller" title="Smaller text">A−</button>
+      <button type="button" id="bigger" title="Larger text">A+</button>
+      <button type="button" onclick="window.print()" title="Print or save as PDF">Print / PDF</button>
+    </div>
+  </aside>
+
+  <main id="top">
+    <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="toc">Contents</button>
+    <header class="hero">
+      <div>
+        <h1>{{TITLE}}</h1>
+        <p>{{SUBTITLE}}</p>
+        <dl>
+          <div><dt>Sensor</dt><dd>RS6240 / MRS6240-P2512</dd></div>
+          <div><dt>SDK</dt><dd>V2.0.6</dd></div>
+          <div><dt>Updated</dt><dd>{{UPDATED}}</dd></div>
+          {{EDIT_LINK}}
+        </dl>
+      </div>
+      <svg class="scope" viewBox="0 0 200 200" aria-hidden="true">
+        <line class="axis" x1="100" y1="8" x2="100" y2="192"/>
+        <line class="axis" x1="8" y1="100" x2="192" y2="100"/>
+        <circle class="ring" cx="100" cy="100" r="92"/>
+        <circle class="ring" cx="100" cy="100" r="69"/>
+        <circle class="ring" cx="100" cy="100" r="46"/>
+        <circle class="ring" cx="100" cy="100" r="23"/>
+        <g class="sweep-g"><path class="sweep" d="M100 100 L100 8 A92 92 0 0 1 165 35 Z"/></g>
+        <circle class="blip" cx="128" cy="52" r="3.2"/>
+        <circle class="blip" cx="136" cy="61" r="2.2" opacity="0.6"/>
+        <circle class="blip" cx="70" cy="138" r="2.6" opacity="0.45"/>
+      </svg>
+    </header>
+
+    <article class="content" id="content">
+{{CONTENT}}
+    </article>
+
+    <footer>
+      Built from <code>guide.md</code> with <code>build.py</code>. To change this page, edit <code>guide.md</code> and push; the GitHub Action rebuilds it.
+    </footer>
+    <button class="copy back-top" type="button" onclick="scrollTo({top:0,behavior:'smooth'})">Top</button>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var KEY = "rs6240-guide:";
+  function load(k, d) { try { var v = localStorage.getItem(KEY + k); return v === null ? d : v; } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(KEY + k, v); } catch (e) {} }
+  var root = document.documentElement;
+
+  /* theme */
+  var themes = ["auto", "light", "dark"];
+  var themeBtn = document.getElementById("theme-btn");
+  function applyTheme(t) {
+    if (t === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
+    themeBtn.textContent = "Theme: " + t;
+  }
+  var theme = load("theme", "auto"); applyTheme(theme);
+  themeBtn.addEventListener("click", function () {
+    theme = themes[(themes.indexOf(theme) + 1) % themes.length]; applyTheme(theme); save("theme", theme);
+  });
+
+  /* text size */
+  var size = parseFloat(load("size", "17"));
+  function applySize() { root.style.setProperty("--base-size", size + "px"); }
+  applySize();
+  document.getElementById("smaller").onclick = function () { size = Math.max(14, size - 1); applySize(); save("size", size); };
+  document.getElementById("bigger").onclick = function () { size = Math.min(22, size + 1); applySize(); save("size", size); };
+
+  /* mobile menu */
+  var menuBtn = document.getElementById("menu-btn");
+  menuBtn.addEventListener("click", function () {
+    var open = document.body.classList.toggle("nav-open"); menuBtn.setAttribute("aria-expanded", open);
+  });
+  document.getElementById("toc").addEventListener("click", function (e) {
+    if (e.target.tagName === "A") { document.body.classList.remove("nav-open"); menuBtn.setAttribute("aria-expanded", "false"); }
+  });
+
+  /* copy buttons */
+  document.querySelectorAll(".content pre").forEach(function (pre) {
+    var wrap = document.createElement("div"); wrap.className = "codeblock";
+    pre.parentNode.insertBefore(wrap, pre); wrap.appendChild(pre);
+    var b = document.createElement("button"); b.type = "button"; b.className = "copy"; b.textContent = "Copy";
+    b.onclick = function () {
+      var text = pre.innerText;
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () {
+        b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500);
+      }, function () { b.textContent = "Select and copy"; });
+    };
+    wrap.appendChild(b);
+  });
+
+  /* checklists, saved per browser */
+  document.querySelectorAll(".task-list input[type=checkbox]").forEach(function (cb) {
+    var id = "task:" + cb.dataset.id;
+    cb.checked = load(id, "0") === "1";
+    cb.closest("li").classList.toggle("done", cb.checked);
+    cb.addEventListener("change", function () { save(id, cb.checked ? "1" : "0"); cb.closest("li").classList.toggle("done", cb.checked); });
+  });
+
+  /* scrollspy + progress */
+  var links = Array.prototype.slice.call(document.querySelectorAll("#toc a"));
+  var heads = links.map(function (a) { return document.getElementById(decodeURIComponent(a.hash.slice(1))); }).filter(Boolean);
+  var progress = document.getElementById("progress");
+  function spy() {
+    var y = window.scrollY + 120, current = heads[0];
+    for (var i = 0; i < heads.length; i++) { if (heads[i].offsetTop <= y) current = heads[i]; }
+    links.forEach(function (a) {
+      var on = current && a.hash === "#" + current.id; a.classList.toggle("active", on);
+    });
+    document.querySelectorAll("#toc li").forEach(function (li) { li.classList.remove("open"); });
+    var act = document.querySelector("#toc a.active");
+    if (act) { var li = act.closest("li"); while (li) { li.classList.add("open"); li = li.parentElement.closest("li"); } }
+    var h = document.documentElement.scrollHeight - innerHeight;
+    document.body.classList.toggle("scrolled", scrollY > 600);
+    progress.style.width = (h > 0 ? Math.min(100, scrollY / h * 100) : 0) + "%";
+  }
+  addEventListener("scroll", spy, { passive: true }); spy();
+
+  /* search with highlighting */
+  var content = document.getElementById("content");
+  var q = document.getElementById("q"), status = document.getElementById("search-status");
+  var marks = [], idx = -1, timer;
+  function clear() {
+    marks.forEach(function (m) { var p = m.parentNode; p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); });
+    marks = []; idx = -1;
+  }
+  function run(term) {
+    clear();
+    if (term.length < 2) { status.textContent = ""; return; }
+    var lower = term.toLowerCase();
+    var walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) { return n.nodeValue.toLowerCase().indexOf(lower) >= 0 && !n.parentNode.closest("button") ? 1 : 2; }
+    });
+    var nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, low = text.toLowerCase(), pos = 0, frag = document.createDocumentFragment(), i;
+      while ((i = low.indexOf(lower, pos)) >= 0 && marks.length < 500) {
+        frag.appendChild(document.createTextNode(text.slice(pos, i)));
+        var m = document.createElement("mark"); m.textContent = text.slice(i, i + term.length);
+        frag.appendChild(m); marks.push(m); pos = i + term.length;
+      }
+      frag.appendChild(document.createTextNode(text.slice(pos)));
+      node.parentNode.replaceChild(frag, node);
+    });
+    status.textContent = marks.length ? marks.length + " matches. Press Enter for next." : "No matches.";
+    if (marks.length) go(0);
+  }
+  function go(i) {
+    if (!marks.length) return;
+    if (idx >= 0) marks[idx].classList.remove("current");
+    idx = (i + marks.length) % marks.length;
+    marks[idx].classList.add("current");
+    marks[idx].scrollIntoView({ block: "center" });
+    status.textContent = (idx + 1) + " of " + marks.length + ". Enter for next, Shift+Enter for previous.";
+  }
+  q.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(function () { run(q.value.trim()); }, 200); });
+  q.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); go(idx + (e.shiftKey ? -1 : 1)); }
+    if (e.key === "Escape") { q.value = ""; run(""); }
+  });
+  addEventListener("keydown", function (e) {
+    if (e.key === "/" && document.activeElement !== q) { e.preventDefault(); q.focus(); }
+  });
+})();
+</script>
+</body>
+</html>
